@@ -88,19 +88,25 @@ def main():
     st.set_page_config(page_title="What Happened Today", page_icon="❓", layout="wide")
     check_api_key()
 
-    st.title("?What Happened Today")
-    st.caption("—— Powered by LangChain & Streamlit")
+    # st.title("What Happened Today")
+    # st.caption("")
+    # 大标题
+    st.markdown('<p class="main-title">❓What Happened Today</p>', unsafe_allow_html=True)
 
-    st.markdown("""
-    **Hi！** 这是一个用于快速梳理总结工作对话的MCP项目。
-    它能将非结构化的工作对话（如一次线上问题排查的聊天记录）自动梳理成一份带时间线的、结构清晰的复盘报告。😀
-    """)
+    # 描述
+    st.markdown('<p class="description">Extract structured report from any chat — just by copy</p>', unsafe_allow_html=True)
+    # st.markdown("""
+    # **Hi！** 这是一个用于快速梳理总结工作对话的MCP项目。
+    # 它能将非结构化的工作对话（如一次线上问题排查的聊天记录）自动梳理成一份带时间线的、结构清晰的复盘报告。😀
+    # """)
 
     # 左右布局
     col1, col2 = st.columns(2)
 
+
+
     with col1:
-        st.subheader("📋 原始对话记录")
+        st.subheader("📋 Original conversation")
         try:
             with open("conversation_example.txt", "r", encoding="utf-8") as f:
                 example_text = f.read()
@@ -110,29 +116,77 @@ def main():
         dialogue_input = st.text_area(
             "请将对话记录粘贴于此:",
             value=example_text,
-            height=500,
+            height=700,
             label_visibility="collapsed"
         )
 
     with col2:
-        st.subheader("✨ AI 生成的复盘报告")
+        st.subheader("✨ AI-generated review reports")
 
         if 'summary' not in st.session_state:
-            st.session_state.summary = "点击左侧按钮开始生成报告..."
+            st.session_state.summary = "empty..."
 
-        if st.button("🚀 生成总结报告", type="primary", use_container_width=True):
+        if st.button("Start Now", type="primary", use_container_width=True):
             if not dialogue_input.strip():
-                st.warning("请输入对话内容！")
+                st.warning("Please input chat~")
             else:
-                with st.spinner("AI 正在深度分析中，请稍候..."):
+                with st.spinner("AI is in the process of deep analysis, please wait..."):
                     summary_output = generate_summary(dialogue_input)
                     if summary_output:
                         st.session_state.summary = summary_output
                     else:
-                        st.session_state.summary = "报告生成失败，请检查 API Key 或网络。"
+                        st.session_state.summary = "Report generation failed, check the API Key or network."
 
         # 使用 Markdown 组件展示报告，并设置边框和内边距
         st.markdown(f'{st.session_state.summary}', unsafe_allow_html=True)
+        st.markdown("""
+            <style>
+            /* 主标题样式 */
+            .main-title {
+                font-size: 56px !important;
+                font-weight: bold;
+                text-align: center;
+                color: #000; /* 白色字体 */
+                padding-top: 40px;
+            }
+            /* 副标题/描述样式 */
+            .description {
+                font-size: 20px !important;
+                text-align: center;
+                color: #B0B0B0; /* 灰色字体 */
+                padding-bottom: 40px;
+            }
+            /* Streamlit 主体背景色 */
+            .stApp {
+                background-color:  #eeebe8; /* 黑色背景 */
+            }
+            /* Tab 标签样式 */
+            .stTabs [data-baseweb="tab-list"] {
+                justify-content: center;
+            }
+            .stTabs [data-baseweb="tab"] {
+                height: 50px;
+                white-space: pre-wrap;
+                background-color: #1a1a1a;
+                border-radius: 8px;
+                margin: 0 5px;
+                color: #f2ddcc; /* Tab 未选中时字体颜色 */
+                
+            }
+            .stTabs [aria-selected="true"] {
+                background-color: #333333;
+                color: #f2ddcc; /* Tab 选中时字体颜色 */
+            }
+            .st-emotion-cache-bfgnao p{
+                font-weight: 650;
+                font-size: 1.0625rem;
+                line-height: 1.625rem;
+                font-variation-settings: "opsz" 40, "wght" 650;
+                font-synthesis: none;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+
 
 if __name__ == "__main__":
     main()
